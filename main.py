@@ -11,18 +11,19 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Motor de 4 tiempos")
 # Carga de las imagenes 
 piston_image = pygame.image.load('piston.png')
-cylinder_image = pygame.image.load('cilindro.png').convert()
-cylinder_image = pygame.transform.scale(cylinder_image, (80, 350))
+cylinder_image = pygame.image.load('cilindro.png')
 cuerpo_image = pygame.image.load('cuerpo.png')
-valve_admission_image = pygame.image.load('valdulader.png')
+valve_admission_image = pygame.image.load('derecha.png')
 valve_exhaust_image = pygame.image.load('valvulaizq.png')
+polea_image = pygame.image.load('polea.png')
 
 new_width = 500  # Ancho deseado
 new_height = 500  # Alto deseado
 
-piston_image = pygame.transform.scale(piston_image, (new_width, new_height))
-cylinder_image = pygame.transform.scale(cylinder_image, (new_width, new_height))
+piston_image = pygame.transform.scale(piston_image, (130, 150))
+cylinder_image = pygame.transform.scale(cylinder_image, (200, 200))
 cuerpo_image = pygame.transform.scale(cuerpo_image, (new_width, new_height))
+polea_image = pygame.transform.scale(polea_image, (100, 100))
 # Colores personalizados
 background_color = (255, 255, 255)
 cylinder_color = (0, 0, 0)
@@ -61,25 +62,31 @@ frame_count = 0
 valve_admission_open = True
 valve_exhaust_open = False
 
-def draw_piston_and_connecting_rod(piston_y):
+def draw_cuerpo(piston_y):
     # Dibuja un pistón en la posición y
     # Dibuja la biela conectada al pistón
     screen.blit(cuerpo_image, (360, 150))  # Cilindro
     pygame.draw.rect(screen, background_color, (365, 205, 70, 340))  # Interior del cilindro
+def draw_cilindro():
+    # dibuja el cilindro que sostiene la cabeza del piston
+    screen.blit(cylinder_image, (520, 350))  
+    pygame.draw.rect(screen, background_color, (365, 205, 70, 340))
 
-    # Ajusta la posición de la biela en función de piston_position
+def draw_piston():
+    screen.blit(piston_image, (560, 299))  
+    pygame.draw.rect(screen, background_color, (365, 205, 70, 340))
     
+def draw_polea():
+    screen.blit(polea_image, (575, 510))  # Cilindro
+    pygame.draw.rect(screen, background_color, (365, 205, 70, 340))
     
-    # Dibuja la biela conectada al pistón
-    
-
 def draw_valves():
     # Dibuja el cilindro con las válvulas de admisión y escape en las esquinas superiores
     pygame.draw.rect(screen, cylinder_color, (360, 200, 80, 350))  # Cilindro
     pygame.draw.rect(screen, background_color, (365, 205, 70, 340))  # Interior del cilindro
 
     # Dibuja las válvulas de admisión en la esquina superior izquierda
-    pygame.draw.circle(screen, valve_color if valve_admission_open else background_color, (365, 205), 10)  # Válvula de admisión
+    pygame.draw.circle(screen, valve_color if valve_admission_open else background_color, (550, 220), 10)  # Válvula de admisión
 
     # Dibuja las válvulas de escape en la esquina superior derecha
     pygame.draw.circle(screen, exhaust_valve_color if valve_exhaust_open else background_color, (435, 205), 10)  # Válvula de escape
@@ -122,8 +129,11 @@ while running:
 
     # Dibuja el pistón y la biela en los cilindros
     
-    draw_piston_and_connecting_rod(piston_position)
-    
+    draw_piston()
+    draw_valves()
+    draw_cuerpo(piston_position)
+    draw_cilindro()
+    draw_polea()
     pygame.display.update()
 
 pygame.quit()
