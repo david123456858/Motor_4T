@@ -73,7 +73,7 @@ def draw_cilindro():
     pygame.draw.rect(screen, background_color, (365, 205, 70, 340))
 
 def draw_piston():
-    screen.blit(piston_image, (560, 299))  
+    screen.blit(piston_image, (560, 295))  
     pygame.draw.rect(screen, background_color, (365, 205, 70, 340))
     
 def draw_polea():
