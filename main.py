@@ -79,22 +79,28 @@ def draw_cuerpo():
     screen.blit(cuerpo_image, (360, 150))  # Cilindro
     pygame.draw.rect(screen, background_color, (365, 205, 70, 340))  # Interior del cilindro
 #valvula cuerpo del piston    
+def calcular_inclinacion_piston(angulo_ciguenal):
+    if angulo_ciguenal <= math.pi:
+        inclinacion_maxima = (angulo_ciguenal / math.pi) * 12  # Aumenta la inclinación hacia la izquierda
+    else:
+        inclinacion_maxima = (2 * math.pi - angulo_ciguenal) / math.pi * 12  # Aumenta la inclinación hacia la derecha
+    return inclinacion_maxima
 def draw_cilindro(x, y, crankshaft_angle):
     amplitud_x = 50
     amplitud_y = 25
-    inclinacion_maxima = 10  # Grados de inclinación máxima
-    velocidad_inclinacion = 1.0  # Ajusta la velocidad de cambio de inclinación
+    velocidad_inclinacion = 2.0  # Ajusta la velocidad de cambio de inclinación
 
+    # Calcula la inclinación en función del ángulo del cigüeñal
     if crankshaft_angle <= math.pi:
         x_cilindro = 0  # En el punto muerto superior
         y_cilindro = -amplitud_y * math.sin(crankshaft_angle)
-        angulo_inclinacion = crankshaft_angle / math.pi * inclinacion_maxima
+        inclinacion_maxima = (crankshaft_angle / math.pi) * 10  # Aumenta la inclinación hacia la izquierda
     else:
-        x_cilindro = amplitud_x * math.sin(crankshaft_angle)
-        y_cilindro = 0  # En el punto muerto inferior
-        angulo_inclinacion = (2 * math.pi - crankshaft_angle) / math.pi * inclinacion_maxima
+        x_cilindro = 0  # No hay movimiento horizontal
+        y_cilindro = -amplitud_y * math.sin(crankshaft_angle)
+        inclinacion_maxima = (2 * math.pi - crankshaft_angle) / math.pi * 10  # Aumenta la inclinación hacia la derecha
 
-    rotated_cylinder = pygame.transform.rotate(cylinder_image, angulo_inclinacion)
+    rotated_cylinder = pygame.transform.rotate(cylinder_image, inclinacion_maxima)
     screen.blit(rotated_cylinder, (x + x_cilindro, y + y_cilindro))
     pygame.draw.rect(screen, background_color, (365, 205, 70, 340))
 
@@ -107,13 +113,39 @@ def draw_cilindro(x, y, crankshaft_angle):
     return crankshaft_angle
 #cabeza del piston
 def draw_piston():
-    screen.blit(piston_image, (560, 299))  
+    amplitud_y = 30  # Ajusta la amplitud vertical según tus necesidades
+    
+
+    # Calcula la posición vertical del pistón en función del ángulo del cigüeñal
+    if crankshaft_angle <= math.pi:
+        y_piston = amplitud_y * math.sin(crankshaft_angle)
+    else:
+        y_piston = -amplitud_y * math.sin(crankshaft_angle)
+
+    screen.blit(piston_image, (560, 299 + y_piston))
     pygame.draw.rect(screen, background_color, (365, 205, 70, 340))
 #cigueñal    
 def draw_polea():
     screen.blit(polea_image, (575, 510))  # Cilindro
     pygame.draw.rect(screen, background_color, (365, 205, 70, 340))
+def draw_polea_rotating(polea_image, polea_angle):
+   # Obtiene el rectángulo que rodea la imagen de la polea
+    polea_rect = polea_image.get_rect()
     
+    # Calcula el centro de la polea
+    polea_center = polea_rect.center
+    
+    # Rota la imagen de la polea alrededor de su centro
+    polea_rotated = pygame.transform.rotate(polea_image, polea_angle)
+    
+    # Obtén el nuevo rectángulo que rodea la imagen rotada
+    polea_rotated_rect = polea_rotated.get_rect()
+    
+    # Establece el centro del rectángulo rotado en el centro original
+    polea_rotated_rect.center = polea_center
+    
+    # Dibuja la polea girando en su propio eje
+    screen.blit(polea_rotated, polea_rotated_rect) 
 def draw_valves():
     # Dibuja el cilindro con las válvulas de admisión y escape en las esquinas superiores
     pygame.draw.rect(screen, cylinder_color, (360, 200, 80, 350))  # Cilindro
@@ -131,10 +163,10 @@ def calcular_posicion_piston(angulo_ciguenal):
 
     return x, y
 # Parámetros para la oscilación del cuerpo del pistón
-amplitude = 50  # Amplitud del movimiento (cambia según tus necesidades)
-frequency = 0.01  # Frecuencia de oscilación (cambia según tus necesidades)
+amplitude = 20  # Amplitud del movimiento (cambia según tus necesidades)
+frequency = 0.05  # Frecuencia de oscilación (cambia según tus necesidades)
 time = 0
-
+polea_angle = 0
 crankshaft_angle = 0
 piston_speed = 0.2  # Velocidad de movimiento del pistón más lenta
 crankshaft_length = 100
@@ -143,7 +175,7 @@ amplitude = 20
 angle = math.pi / 4  # Ángulo inicial (45 grados)
 angular_velocity = 0.1
 running = True
-
+clock = pygame.time.Clock()
 while running:
     
     for event in pygame.event.get():
@@ -171,7 +203,8 @@ while running:
     x, y = calcular_posicion_piston(crankshaft_angle)
     # Dibuja las válvulas de admisión y escape
     draw_valves()
-
+    
+    
     # Actualizar el estado del motor
     frame_count += 1
     if frame_count > state_duration:
@@ -191,13 +224,17 @@ while running:
 
     # Dibuja el pistón y la biela en los cilindros
     
-    draw_piston()
+    polea_angle += 0.02
     draw_valves()
     draw_cuerpo()
     crankshaft_angle=draw_cilindro(520, 350,crankshaft_angle)
-    draw_polea()
+    # Velocidad de rotación de la polea (ajusta según tus necesidades)
+    draw_polea_rotating(polea_image, polea_angle)
+    draw_piston()
     valvula_der()
     valvula_izq()
+    
     pygame.display.update()
+    clock.tick(60)
 pygame.quit()
 sys.exit()

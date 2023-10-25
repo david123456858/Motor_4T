@@ -79,23 +79,31 @@ def draw_cuerpo():
     screen.blit(cuerpo_image, (360, 150))  # Cilindro
     pygame.draw.rect(screen, background_color, (365, 205, 70, 340))  # Interior del cilindro
 #valvula cuerpo del piston    
+def calcular_inclinacion_piston(angulo_ciguenal):
+    amplitud_maxima = 12
+    inclinacion_maxima = amplitud_maxima * math.sin(angulo_ciguenal)
+    return inclinacion_maxima
 def draw_cilindro(x, y, crankshaft_angle):
     amplitud_x = 50
     amplitud_y = 25
-    inclinacion = 10  # Grados de inclinación máxima
-    
-    if crankshaft_angle <= math.pi:
-        x_cilindro = 0  # En el punto muerto superior
-        y_cilindro = -amplitud_y * math.sin(crankshaft_angle)
-        angulo_inclinacion = crankshaft_angle / math.pi * inclinacion
-    else:
-        x_cilindro = amplitud_x * math.sin(crankshaft_angle)
-        y_cilindro = 0  # En el punto muerto inferior
-        angulo_inclinacion = (2 * math.pi - crankshaft_angle) / math.pi * inclinacion
+    velocidad_inclinacion = 1.0  # Ajusta la velocidad de cambio de inclinación
 
-    rotated_cylinder = pygame.transform.rotate(cylinder_image, angulo_inclinacion)
+    # Calcula la inclinación en función del ángulo del cigüeñal
+    x_cilindro = 0  # En el punto muerto superior
+    y_cilindro = -amplitud_y * math.sin(crankshaft_angle)
+    inclinacion_maxima = calcular_inclinacion_piston(crankshaft_angle)
+
+    rotated_cylinder = pygame.transform.rotate(cylinder_image, inclinacion_maxima)
     screen.blit(rotated_cylinder, (x + x_cilindro, y + y_cilindro))
     pygame.draw.rect(screen, background_color, (365, 205, 70, 340))
+
+    # Ajusta el ángulo del cigüeñal para un cambio más suave
+    crankshaft_angle += velocidad_inclinacion * 0.01  # 0.01 es un valor de ajuste
+
+    if crankshaft_angle >= 2 * math.pi:
+        crankshaft_angle = 0
+
+    return crankshaft_angle
 #cabeza del piston
 def draw_piston():
     screen.blit(piston_image, (560, 299))  
@@ -145,10 +153,24 @@ while running:
     
     time += 1
     
-    
+    piston_position_x = 560 + 50 * math.sin(angle)
+    piston_position_y = 300 + amplitude * math.sin(frequency * time)
+
+    # Calcula la posición del pistón
+    piston_position = 300 - crankshaft_length * math.sin(crankshaft_angle)
+    x, y = calcular_posicion_piston(crankshaft_angle)
+
+    # Calcula la inclinación en función de la dirección del movimiento
+    if piston_position_y > 300:
+        # Si el pistón está bajando, inclínalo hacia la derecha
+        inclinacion_maxima = -angle * (180 / math.pi)  # Inclinación negativa hacia la derecha
+    else:
+        # Si el pistón está subiendo, inclínalo hacia la izquierda
+        inclinacion_maxima = angle * (180 / math.pi)  # Inclinación positiva hacia la izquierda
     
     angle += angular_velocity
-    
+    rotated_cylinder = pygame.transform.rotate(cylinder_image, inclinacion_maxima)
+    screen.blit(rotated_cylinder, (x, y))
     piston_position_x = 560 + 50 * math.sin(angle)
 
     # Actualiza el ángulo del cigüeñal
@@ -185,7 +207,7 @@ while running:
     draw_piston()
     draw_valves()
     draw_cuerpo()
-    draw_cilindro(520, 350,crankshaft_angle)
+    crankshaft_angle=draw_cilindro(520, 350,crankshaft_angle)
     draw_polea()
     valvula_der()
     valvula_izq()
