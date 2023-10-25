@@ -88,7 +88,7 @@ def calcular_inclinacion_piston(angulo_ciguenal):
 def draw_cilindro(x, y, crankshaft_angle):
     amplitud_x = 50
     amplitud_y = 25
-    velocidad_inclinacion = 2.0  # Ajusta la velocidad de cambio de inclinación
+    velocidad_inclinacion = 1.4  # Ajusta la velocidad de cambio de inclinación
 
     # Calcula la inclinación en función del ángulo del cigüeñal
     if crankshaft_angle <= math.pi:
@@ -113,16 +113,16 @@ def draw_cilindro(x, y, crankshaft_angle):
     return crankshaft_angle
 #cabeza del piston
 def draw_piston():
-    amplitud_y = 30  # Ajusta la amplitud vertical según tus necesidades
+    amplitud_y = 45  # Ajusta la amplitud vertical según tus necesidades
     
 
     # Calcula la posición vertical del pistón en función del ángulo del cigüeñal
-    if crankshaft_angle <= math.pi:
-        y_piston = amplitud_y * math.sin(crankshaft_angle)
+    if head_angle <= math.pi:
+        y_piston = amplitud_y * math.sin(head_angle)
     else:
-        y_piston = -amplitud_y * math.sin(crankshaft_angle)
+        y_piston = -amplitud_y * math.sin(head_angle)
 
-    screen.blit(piston_image, (560, 299 + y_piston))
+    screen.blit(piston_image, (560, 295 + y_piston))
     pygame.draw.rect(screen, background_color, (365, 205, 70, 340))
 #cigueñal    
 def draw_polea():
@@ -168,13 +168,21 @@ frequency = 0.05  # Frecuencia de oscilación (cambia según tus necesidades)
 time = 0
 polea_angle = 0
 crankshaft_angle = 0
-piston_speed = 0.2  # Velocidad de movimiento del pistón más lenta
+piston_speed = 0.68  # Velocidad de movimiento del pistón más lenta
+cabeza_speed= 1.4
 crankshaft_length = 100
 piston_length = 100
-amplitude = 20
+amplitude_cuerpo = 20  # Amplitud de movimiento del cuerpo
+frequency_cuerpo = 0.05  # Frecuencia de oscilación del cuerpo
+amplitude_cabeza = 40  # Amplitud de movimiento de la cabeza del pistón
+frequency_cabeza = 0.05  
 angle = math.pi / 4  # Ángulo inicial (45 grados)
 angular_velocity = 0.1
+head_angle= 0
 running = True
+head_pause = False
+pause_time = 0
+permitir_movimiento_cuerpo = True
 clock = pygame.time.Clock()
 while running:
     
@@ -186,17 +194,32 @@ while running:
     
     time += 1
     
+    cuerpo_position_y = 300 + amplitude_cuerpo * math.sin(frequency_cuerpo * angle)
+    cabeza_position_y = 300 + amplitude_cabeza * math.sin(frequency_cabeza * angle)
     
-    
+    if permitir_movimiento_cuerpo and cuerpo_position_y <= 350:
+        permitir_movimiento_cuerpo = False
+
+    if not permitir_movimiento_cuerpo:
+        # Cuando el cuerpo del pistón ha alcanzado su posición más alta, permite el movimiento de la cabeza
+        cabeza_position_y = 350 - amplitude_cabeza * math.sin(frequency_cabeza * angle)
+
+    piston_position = 300 - crankshaft_length * math.sin(crankshaft_angle)
     angle += angular_velocity
     
     piston_position_x = 560 + 50 * math.sin(angle)
 
     # Actualiza el ángulo del cigüeñal
     crankshaft_angle += math.radians(piston_speed)
+    head_angle += math.radians(piston_speed)
+    
+    if head_angle >= 2 * math.pi:
+        head_angle = 0
+    
     if crankshaft_angle >= 2 * math.pi:
         crankshaft_angle = 0
-        
+    cuerpo_position_y = 300 + amplitude_cuerpo * math.sin(frequency_cuerpo * angle)
+    cabeza_position_y = 300 + amplitude_cabeza * math.sin(frequency_cabeza * angle)    
     piston_position_y = 300 + amplitude * math.sin(frequency * time)
     # Calcula la posición del pistón
     piston_position = 300 - crankshaft_length * math.sin(crankshaft_angle)
@@ -204,6 +227,8 @@ while running:
     # Dibuja las válvulas de admisión y escape
     draw_valves()
     
+    
+
     
     # Actualizar el estado del motor
     frame_count += 1
@@ -221,7 +246,7 @@ while running:
             valve_exhaust_open = False  # Cierra la válvula de escape
         else:
             current_state = ADMISSION
-
+    
     # Dibuja el pistón y la biela en los cilindros
     
     polea_angle += 0.02
