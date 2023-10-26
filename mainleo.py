@@ -32,7 +32,7 @@ stroke = 0
 
 # Ángulos para el cigüeñal
 crankshaft_angle = 0
-piston_speed = 0.4  # Velocidad de movimiento del pistón más lenta
+piston_speed = 0.5  # Velocidad de movimiento del pistón más lenta
 crankshaft_length = 100
 piston_length = 100
 
@@ -91,12 +91,19 @@ def draw_valves():
     pygame.draw.circle(screen, (110, 110, 110), circle_center, circle_radius)
 
     # Dibuja las válvulas de admisión en la esquina superior izquierda
-    pygame.draw.circle(screen, valve_color if valve_admission_open else background_color, (365, 205), 10)  # Válvula de admisión
-
+    pygame.draw.circle(screen,(255,255,255) if valve_admission_open else background_color, (365, 205), 10)  # Válvula de admisión
+    pygame.draw.circle(screen, (255,255,255) if valve_exhaust_open else background_color, (435, 205), 10) 
     # Dibuja las válvulas de escape en la esquina superior derecha
-    screen.blit(valvula_img2, (335, 105))
-    screen.blit(valvula_img2, (405, 105))
-    pygame.draw.circle(screen, exhaust_valve_color if valve_exhaust_open else background_color, (435, 205), 10)  # Válvula de escape
+    if current_state==ADMISSION:
+        screen.blit(valvula_img2, (335, 105))
+    else:
+        screen.blit(valvula_img2, (335, 120))
+    if current_state==EXHAUST:
+        screen.blit(valvula_img2, (405, 105))
+    else:
+        screen.blit(valvula_img2, (405, 120))
+    
+     # Válvula de escape
 font = pygame.font.Font(None, 36)
 while running:
     for event in pygame.event.get():
@@ -126,6 +133,8 @@ while running:
     if frame_count > state_duration:
         frame_count = 0
         valve_exhaust_open = False
+        if current_state==COMBUSTION or current_state==COMPRESSION:
+            valve_admission_open=False
         if current_state == ADMISSION:
             current_state = COMPRESSION
             valve_admission_open = False  # Cierra la válvula de admisión
@@ -148,7 +157,7 @@ while running:
     text_rect.center = (screen_width // 2, 20)
     particles = []
 
-    if current_state == ADMISSION:
+    if current_state == ADMISSION or current_state==COMPRESSION or current_state==COMBUSTION:
         # Abre la válvula de admisión
         valve_admission_open = True
 
