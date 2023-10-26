@@ -14,8 +14,10 @@ pygame.display.set_caption("Motor de 4 tiempos")
 # Antes del bucle principal
 piston_background = pygame.image.load("pis.png")
 valvula_img = pygame.image.load("valvula.png")
-caja_image = pygame.image.load('cuerpo.png')
-caja_image= pygame.transform.scale(caja_image, (600, 700))
+caja_image = pygame.image.load('bloque.png')
+valvula_img = pygame.transform.scale(valvula_img, (600, 500))
+
+caja_image= pygame.transform.scale(caja_image, (700, 700))
 # Colores personalizados
 background_color = (255, 255, 255)
 cylinder_color = (0, 0, 0)
@@ -56,7 +58,7 @@ valve_exhaust_open = False
 def draw_caja():
     # Dibuja un pistón en la posición y
     # Dibuja la biela conectada al pistón
-    screen.blit(caja_image, (80, 50))  # Cilindro
+    screen.blit(caja_image, (150, 50))  # Cilindro
     pygame.draw.rect(screen, background_color, (365, 205, 70, 340))
 
 def draw_piston_and_connecting_rod(piston_x, piston_y, circle_center_x, circle_center_y):
@@ -70,7 +72,7 @@ def draw_piston_and_connecting_rod(piston_x, piston_y, circle_center_x, circle_c
     # Dibuja la biela conectada al pistón
     piston_center = (piston_x + 20, piston_y + 70)
     pygame.draw.line(screen, connecting_rod_color, piston_center, (circle_center_x, circle_center_y), 10)
-    pygame.draw.rect(screen, background_color, (370, piston_y, 60, 90))
+    pygame.draw.rect(screen, background_color, (360, piston_y, 60, 90))
     screen.blit(piston_background2, (350, piston_y))
 
     # Dibuja el círculo en la biela
@@ -79,29 +81,29 @@ def draw_piston_and_connecting_rod(piston_x, piston_y, circle_center_x, circle_c
 
 def draw_valves():
     # Dibuja el cilindro con las válvulas de admisión y escape en las esquinas superiores
-    pygame.draw.rect(screen, (144, 144, 144), (340, 200, 120, 350))  # Cilindro
-    pygame.draw.rect(screen, (255,255,255), (345, 205, 110, 340))  # Interior del cilindro
-    valvula_img2= pygame.transform.scale(valvula_img, (60, 90))
-
+    #pygame.draw.rect(screen, (144, 144, 144), (340, 200, 120, 350))  # Cilindro
+    #pygame.draw.rect(screen, (255,255,255), (345, 205, 110, 340))  # Interior del cilindro
+    valvula_img2= pygame.transform.scale(valvula_img, (30, 60))
+    
     # Dibuja un círculo estático dentro del cilindro
     circle_color = (0, 0, 0)  # Color del círculo
     circle_center = (400, 605)  # Posición del círculo
     circle_radius = 50  # Radio del círculo
     pygame.draw.circle(screen, (144, 144, 144) , circle_center, 100)
     pygame.draw.circle(screen, (110, 110, 110), circle_center, circle_radius)
-
+    pygame.draw.circle(screen, (0, 0, 5), circle_center, 15)
     # Dibuja las válvulas de admisión en la esquina superior izquierda
     pygame.draw.circle(screen,(255,255,255) if valve_admission_open else background_color, (365, 205), 10)  # Válvula de admisión
     pygame.draw.circle(screen, (255,255,255) if valve_exhaust_open else background_color, (435, 205), 10) 
     # Dibuja las válvulas de escape en la esquina superior derecha
     if current_state==ADMISSION:
-        screen.blit(valvula_img2, (335, 105))
+        screen.blit(valvula_img2, (335, 120))
     else:
         screen.blit(valvula_img2, (335, 120))
     if current_state==EXHAUST:
-        screen.blit(valvula_img2, (405, 105))
-    else:
         screen.blit(valvula_img2, (405, 120))
+    else:
+        screen.blit(valvula_img2, (405, 100))
     
      # Válvula de escape
 font = pygame.font.Font(None, 36)
@@ -111,7 +113,7 @@ while running:
             running = False
     
     screen.fill(background_color)
-    #draw_caja()
+    draw_caja()
     # Actualiza el ángulo del cigüeñal
     crankshaft_angle += math.radians(piston_speed)
     if crankshaft_angle >= 2 * math.pi:
@@ -119,7 +121,7 @@ while running:
 
     # Calcula la posición del pistón (movimiento vertical)
     piston_position_x = 380
-    piston_position_y = 330 + 70 * math.sin(crankshaft_angle)  # Movimiento vertical
+    piston_position_y = 330 + 80 * math.sin(crankshaft_angle)  # Movimiento vertical
 
     # Calcula la posición del círculo de la biela
     circle_center_x = 400 + 50 * math.cos(crankshaft_angle)
