@@ -5,7 +5,7 @@ import random
 pygame.init()
 
 # Configuración de la pantalla
-screen_width = 1280
+screen_width = 900
 screen_height = 720
 screen = pygame.display.set_mode((screen_width, screen_height))
 air_inflow = 0.1  # Cantidad de aire (por ejemplo, en litros)
@@ -81,9 +81,9 @@ def draw_piston_and_connecting_rod(piston_x, piston_y, circle_center_x, circle_c
 
 def draw_valves():
     # Dibuja el cilindro con las válvulas de admisión y escape en las esquinas superiores
-    #pygame.draw.rect(screen, (144, 144, 144), (340, 200, 120, 350))  # Cilindro
-    #pygame.draw.rect(screen, (255,255,255), (345, 205, 110, 340))  # Interior del cilindro
-    valvula_img2= pygame.transform.scale(valvula_img, (30, 60))
+    pygame.draw.rect(screen, (144, 144, 144), (340, 200, 120, 350))  # Cilindro
+    pygame.draw.rect(screen, (255,255,255), (345, 205, 110, 340))  # Interior del cilindro
+    valvula_img2= pygame.transform.scale(valvula_img, (60, 90))
     
     # Dibuja un círculo estático dentro del cilindro
     circle_color = (0, 0, 0)  # Color del círculo
@@ -97,13 +97,13 @@ def draw_valves():
     pygame.draw.circle(screen, (255,255,255) if valve_exhaust_open else background_color, (435, 205), 10) 
     # Dibuja las válvulas de escape en la esquina superior derecha
     if current_state==ADMISSION:
-        screen.blit(valvula_img2, (335, 120))
+        screen.blit(valvula_img2, (335, 105))
     else:
         screen.blit(valvula_img2, (335, 120))
     if current_state==EXHAUST:
-        screen.blit(valvula_img2, (405, 120))
+        screen.blit(valvula_img2, (405, 105))
     else:
-        screen.blit(valvula_img2, (405, 100))
+        screen.blit(valvula_img2, (405, 120))
     
      # Válvula de escape
 font = pygame.font.Font(None, 36)
@@ -113,7 +113,7 @@ while running:
             running = False
     
     screen.fill(background_color)
-    draw_caja()
+    #draw_caja()
     # Actualiza el ángulo del cigüeñal
     crankshaft_angle += math.radians(piston_speed)
     if crankshaft_angle >= 2 * math.pi:
